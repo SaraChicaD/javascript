@@ -24,7 +24,7 @@
     "javascript",
     "styleguide"
   ],
-  "author": "Evenbrite Frontend Engineering <frontend@eventbrite.com>",
+  "author": "Eventbrite <npmjs@eventbrite.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/eventbrite/javascript/issues"
