@@ -4,13 +4,15 @@
   "description": "Eventbrites's legacy ESLint config that lints ES5- and adheres to the Eventbrite JavaScript Coding Style Guide",
   "main": "index.js",
   "scripts": {
+    "git-tag-version": "node ./_scripts/git-tag-version.js",
     "lint": "eslint .",
     "test": "npm run lint",
     "preversion": "npm test",
+    "version": "npm run git-tag-version",
     "postversion": "git push && git push --tags",
-    "release:patch": "npm version patch --message 'Patch release v%s' && npm publish",
-    "release:minor": "npm version minor --message 'Minor release v%s' && npm publish",
-    "release:major": "npm version major --message 'Major release v%s' && npm publish"
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "version:major": "npm version major --no-git-tag-version"
   },
   "repository": {
     "type": "git",
