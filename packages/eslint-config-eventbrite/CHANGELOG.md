@@ -4,6 +4,7 @@
 - (breaking change) only function expressions (arrow functions) allowed in ES6+
 - (minor) ignore imports for `no-useless-rename`
 - (minor) relax `no-confusing-arrow` by setting `allowParens` to `true`
+- (dev ops) Bump `eslint-config-eventbrite-legacy` to 1.1.0
 
 ## v1.0.0 (June 7, 2016)
 - Initial release
