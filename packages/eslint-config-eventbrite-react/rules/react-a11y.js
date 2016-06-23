@@ -5,7 +5,7 @@ module.exports = {
     ],
 
     // View link below for docs on react a11y rules
-    // https://github.com/yannickcr/eslint-plugin-react#list-of-supported-rules
+    // https://github.com/evcohen/eslint-plugin-jsx-a11y/
     rules: {
         // Enforce all `aria-*` props are valid
         // https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/master/docs/rules/aria-props.md
@@ -36,9 +36,9 @@ module.exports = {
         // https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/master/docs/rules/img-redundant-alt.md
         'jsx-a11y/img-redundant-alt': 'error',
 
-        // Enforce that `<label>` elements have the `htmlFor` prop
+        // Enforce that `<label>` & (custom) <Label> elements have the `htmlFor` prop
         // https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/master/docs/rules/label-has-for.md
-        'jsx-a11y/label-has-for': 'error',
+        'jsx-a11y/label-has-for': ['error', 'Label'],
 
         // Enforce that onMouseOver/onMouseOut are accompanied by onFocus/onBlur
         // for keyboard-only users
