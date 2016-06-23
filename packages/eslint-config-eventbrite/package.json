@@ -1,6 +1,6 @@
 {
   "name": "eslint-config-eventbrite",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Eventbrites's base ESLint config that lints ES6+/ES2015+ and adheres to the Eventbrite JavaScript Coding Style Guide",
   "main": "index.js",
   "scripts": {
@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/eventbrite/javascript#readme",
   "dependencies": {
-    "eslint-config-eventbrite-legacy": "^1.0.0"
+    "eslint-config-eventbrite-legacy": "^1.1.0"
   },
   "devDependencies": {
     "babel-eslint": "^6.0.0",

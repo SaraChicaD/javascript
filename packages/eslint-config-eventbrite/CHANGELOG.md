@@ -1,2 +1,9 @@
+## v2.0.0 (June 22, 2016)
+- (dev ops) added `babel-eslint` dependency so ES2016+ can be linted
+- (minor) relaxed `comma-dangle` to allow dangling commas for multi-line
+- (breaking change) only function expressions (arrow functions) allowed in ES6+
+- (minor) ignore imports for `no-useless-rename`
+- (minor) relax `no-confusing-arrow` by setting `allowParens` to `true`
+
 ## v1.0.0 (June 7, 2016)
 - Initial release
