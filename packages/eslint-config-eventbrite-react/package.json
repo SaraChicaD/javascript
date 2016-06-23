@@ -1,6 +1,6 @@
 {
   "name": "eslint-config-eventbrite-react",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Eventbrites's ESLint config that lints React & JSX, adhering to the Eventbrite JavaScript Coding Style Guide",
   "main": "index.js",
   "scripts": {
@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/eventbrite/javascript#readme",
   "dependencies": {
-    "eslint-config-eventbrite": "^1.0.0"
+    "eslint-config-eventbrite": "^2.0.0"
   },
   "devDependencies": {
     "babel-eslint": "^6.0.0",
