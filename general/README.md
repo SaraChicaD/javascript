@@ -4,4 +4,102 @@ Guidelines and best practices used by Eventbrite to provide consistency and prev
 
 ## Table of Contents
 
-Coming soon...
+0. [Conditionals](#conditionals)
+
+
+## Conditionals
+
+### Complex conditional expressions
+
+Complex conditional expressions within conditional statements can make understanding code challenging because you need to fully understand the expression in order to be able to process the overall code flow. In addition, in code reviews (or revisiting old code), it's difficult to know if the logic is correct without knowing what state the conditional expression is trying to represent.
+
+To make things easier, store complex conditional expressions in state variables:
+
+```js
+// good
+var shouldContinue = !options || (options.continue && options.hasWon);
+
+if (shouldContinue) {
+
+}
+
+// bad
+if (!options || (options.continue && options.hasWon)) {
+
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Negative conditional expressions
+
+Positive conditional expressions are generally easier to follow than negative ones. Try to flip the logic so that the positive case is considered first:
+
+```js
+// good
+if (something && somethingElse) {
+    /* do stuff*/
+} else {
+    /* do other stuff */
+}
+
+// bad (negative case comes first)
+
+if (!something || !somethingElse ) {
+    /* do stuff */
+} else {
+    /* do other stuff */
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Multiple `if-else`
+
+Creating a chain of conditional statements can make refactoring hard because the decisions are mixed with the actions. Instead, separate out the decisions into functions that can return simple actions:
+
+```js
+// good
+
+// decision
+var whatToDoWithTheThing = this.getSomethingAction();
+
+// execution
+this[whatToDoWithTheThing]();
+
+
+// bad (mixed decisions and actions)
+if (this.something()) {
+   /* do stuff */
+}  else if (this.otherSomething()) {
+   /* do other stuff */
+} else if (this.somethingEvenMoreCurious()) {
+   /* yet another thing */
+} else {
+   /* default something */
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+## Ternary statements
+
+Simple ternary expressions can be handy when we need to conditionally assign a value to a variable when the condition is both true and false. However, when we only want to assign the variable when the condition is true, we may be tempted to still use a ternary and return `undefined` for the false case.
+
+In this case, the preferred approach is to declare the value without assigning it (the default value is `undefined`) and then using an `if` statement to assign to it when the condition is met:
+
+```js
+// good
+var value;
+
+if (options.isSomethingTrue) {
+    value = 'hey there';
+}
+
+// bad (uses a ternary that returns undefined)
+var options.isSomethingTrue ? 'hey there' : undefined;
+```
+
+Applying this pattern provides more robust maintenance over time and uses the basic structures of the language in a more formal way (ternaries are used under the assumption that we need a value).
+
+**[⬆ back to top](#table-of-contents)**

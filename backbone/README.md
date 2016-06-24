@@ -13,20 +13,20 @@ Backbone and Marionette come with a rich API and also functions provided by [und
 0. [File structure](#file-structure)
 0. [Statics](#statics)
 0. [Styling](#styling)
-0. [Good Practices](#good-practices)
-	0. [Function](#good-practices-functions)
-	0. [Hydrating apps](#good-practices-hydrating-apps)
-		0. [Static or on Bootstrap](#good-practices-static-hydration)
-		0. [dynamic](#good-practices-dynamic-hydration-apps)
-	0. [Marionette.Layout](#marionette-layout)
-		0. [Regions](#marionette-regions)
-	0. [Marionette.Views](#marionette-views)
-	0. [Backbone.Model](#backbonemodel)
-		0. 	[Handling errors](#handling-errors-on-models)
-	0. [Backbone.Collection](#marionette-collection)
-		0. [Handling errors](#handling-errors-on-collections)
+0. [Context](#context)
+0. [Function](#good-practices-functions)
+0. [Hydrating apps](#good-practices-hydrating-apps)
+	0. [Static or on Bootstrap](#good-practices-static-hydration)
+	0. [dynamic](#good-practices-dynamic-hydration-apps)
+0. [Marionette.Layout](#marionette-layout)
+	0. [Regions](#marionette-regions)
+0. [Marionette.Views](#marionette-views)
+0. [Backbone.Model](#backbonemodel)
+	0. 	[Handling errors](#handling-errors-on-models)
+0. [Backbone.Collection](#marionette-collection)
+	0. [Handling errors](#handling-errors-on-collections)
 0. [Marionette Artifacts Life Cycle](#marionette-artifacts-life-cycle)
-0. [Backbone Life Cycle]()
+0. [Backbone Life Cycle](#)
 0. [Architecting JS Apps at Eventbrite](#architecting-js-apps-at-eventbrite)
 	0. [app.js](#app.js)
 	0. [Templates](#templates)
@@ -49,6 +49,8 @@ Eventbrite still uses v1.0.0 of Backbone. For more, see [Getting started with Ba
 
 _NOTE:_ [`Backbone.View`](http://backbonejs.org/#View) is deprecated in favor of using [Marionette views](#marionette-views).
 
+**[⬆ back to top](#table-of-contents)**
+
 ## Marionette.js
 
 From the [Marionette.js](http://marionettejs.com/) docs:
@@ -61,6 +63,8 @@ _NOTE:_ [`Marionette.Application.module`](http://marionettejs.com/docs/v1.8.8/ma
 
 _NOTE:_ [`Marionette.Controller`](http://marionettejs.com/docs/v1.8.8/marionette.controller.html) is deprecated in favor of [`Marionette.Layout`](http://marionettejs.com/docs/v1.8.8/marionette.layout.html). [`Marionette.Object`](http://marionettejs.com/docs/v2.1.0/marionette.object.html) is also available. It was taken from a later version of Marionette and stitched in.
 
+**[⬆ back to top](#table-of-contents)**
+
 ## Additional plugins
 
 We have a couple of plugins/libraries to enhance and simplify our use of Backbone/Marionette:
@@ -70,6 +74,8 @@ We have a couple of plugins/libraries to enhance and simplify our use of Backbon
 - [`Backbone.Stickit`](https://github.com/NYTimes/backbone.stickit): Backbone data binding plugin that binds Model attributes to View elements
 - [`Backbone.Validation`](https://github.com/thedersen/backbone.validation): A validation plugin for Backbone that validates both your model as well as form input
 - [`Backbone.Wreqr`](https://github.com/marionettejs/backbone.wreqr): Messaging patterns for Backbone applications
+
+**[⬆ back to top](#table-of-contents)**
 
 ## Common terminology
 
@@ -87,6 +93,8 @@ We have a couple of plugins/libraries to enhance and simplify our use of Backbon
 - _mixins_ -
 - _base bundle_ -
 - _bundle_ -
+
+**[⬆ back to top](#table-of-contents)**
 
 ## File structure
 
@@ -147,6 +155,8 @@ MyItemView = Marionette.ItemView.extend({ /* do something here */ });
 
 return MyItemView;
 ```
+
+**[⬆ back to top](#table-of-contents)**
 
 ## Statics
 
@@ -234,6 +244,8 @@ return Marionette.ItemView.extend({
 });
 ```
 
+**[⬆ back to top](#table-of-contents)**
+
 ## Styling
 
 To simplify searches when trying to find templates, put CSS classes in handlebars templates instead of coupling it with the view logic:
@@ -263,160 +275,97 @@ return Marionette.ItemView({
 });
 ```
 
-## Good Practices: Algorithms
+**[⬆ back to top](#table-of-contents)**
 
-there are some common issues that we encounter regarding logic preferences, the following recommendations are based on what we have seen over the past years that helps to our code review speed and helps.
+## Context
 
-### avoid negative statements in conditional expressions
+### Binding
 
-When evaluating logic, positive conditional expresion form are easier to wrap our heads around them. instead we could gather the options in a variable so it can be understood later or try to flip the logic so it considers the positive case first.
+In order to use native JavaScript whenever possible, use [`Function.prototype.bind`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind) instead of [`_.bind`](http://underscorejs.org/#bind) and [`_.bindAll`](http://underscorejs.org/#bindAll) to bind callback handlers:
 
-``` javascript
-	// Bad
+```js
+// good
+return Marionette.ItemView.extend({
+	initialize: function(options) {
+		this.listenTo(channel.vent, 'someSignal', this.someMethod.bind(this));
+		this.listenTo(channel.vent, 'anotherSingle', this.anotherMethod.bind(this));
+	},
 
-	if (!something || !somethingElse ) {
-		/* do stuff */
-	} else {
-		/* do other stuff */
+	someMethod: function(options) {
+		/* do something */
+	},
+	anotherMethod: function(options) {
+		/* do something */
+	}
+});
+
+// bad (uses _.bindAll)
+return Marionette.ItemView.extend({
+	initialize: function(options) {
+		_.bindAll(this, 'someMethod', 'anotherMethod');
+
+		this.listenTo(channel.vent, 'someSignal', this.someMethod);
+		this.listenTo(channel.vent, 'anotherSingle', this.anotherMethod);
+	},
+
+	someMethod: function(options) {
+		/* do something */
+	},
+	anotherMethod: function(options) {
+		/* do something */
+	}
+});
+
+// bad (uses _.bind)
+return Marionette.ItemView.extend({
+	initialize: function(options) {
+		this.listenTo(channel.vent, 'someSignal', _.bind(this.someMethod));
+		this.listenTo(channel.vent, 'anotherSingle', _.bind(this.anotherMethod));
+	},
+
+	someMethod: function(options) {
+		/* do something */
+	},
+	anotherMethod: function(options) {
+		/* do something */
+	}
+});
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Data
+
+Storing derived/calculated data on the `this` context of a view can be fragile and error prone because nothing prevents that data from being modified. Furthermore, it makes quality code review (aka static analysis) more challenging as the reviewer needs to first investigate where the instance property originates.
+
+Whenever possible, calculate the data on demand either in the model or in the view:
+
+```js
+// good
+return Marionette.ItemView.extend({
+	getComputedData: function() {
+		return this.model.getComputedData();
+	}
+});
+
+// ok (the View is doing data calculations that could be done by Model)
+return Marionette.ItemView.extend({
+
+	getComputedData: function() {
+		return someDataTransformation(this.options);
+	}
+});
+
+// bad (storing computed data in the View context)
+return Marionette.ItemView.extend({
+	initialize: function(options) {
+		this.computedData = someTransformation(options);
 	}
 
-	// Ok
-
-	var hasTheNeededState = !something || !somethingElse;
-
-	if (hasTheNeededState) {
-		/* do stuff*/
-	} else {
-		/* do other stuff */
+	getComputedData: function() {
+		return this.computedData;
 	}
-
-	// Good
-
-	if (something || somethingElse) {
-		/* do stuff*/
-	} else {
-		/* do other stuff */
-	}
+});
 ```
 
-### avoid nested `if else` statements
-
-Creating nested chains of conditions makes refactor really hard. instead split the decision into functions that can return simple actions. (separate decision from action);
-
-``` javascript
- // Bad
-
- if (this.something()) {
- 	/* do stuff */
- }  else if (this.otherSomething()) {
- 	/* do other stuff */
- } else if (this.somethingEvenMoreCurious()) {
- 	/* yet another thing */
- } else {
- 	/* default something */
- }
-
- // Good
- /* decision */
- var whatToDoWithTheThing = this.getSomethingAction();
- /* exectution */
- this[whatToDoWithTheThing]();
-
-```
-
-### avoid using `this` to store persistent data
-
-contextual data is often fragile and error prone when code review (static analisis).
-
-instead we could choose to calculate when is required or have a model storing the needed computed information  or reference.
- > keep in mind `options` received on instantiation are reachable via `this.options` inside the view.
-
-``` javascript
-
-	// Bad
-	return Marionette.ItemView.extend({
-		initialize: function(options) {
-			this.computedData = someTransformation(options);
-		}
-
-		getComputedData: function() {
-			return this.computedData;
-		}
-	});
-
-	// Ok
-	return Marionette.ItemView.extend({
-
-		getComputedData: function() {
-			return someDataTransformation(this.options);
-		}
-	});
-
-	// Good
-	return Marionette.ItemView.extend({
-
-		getComputedData: function() {
-			return this.model.getComputedData();
-		}
-	});
-```
-
-### default case instead of ternary statement
-
-sometimes we need to assign a value only when a condition is met. in these cases we will be tempted to use a simple ternanry even tho we don't have a value for when the condition is not met.
-
-For these cases we prefer a default case and to alter such a value if the condition is met.
-
-applying this pattern provides more robust mantainability over time and uses the basic structures of the language in a more formal way (ternaries are used under the assumption that we need a value)
-
-``` javascript
-	// Bad
-	return Marionette.ItemView.extend({
-		someMethod: function(options) {
-			return options.isSomethingTrue ? 'hey there' : undefined;
-		}
-	});
-
-	// Good
-	return Marionette.ItemView.extend({
-		someMethod: function(options) {
-			var value;
-
-			if (options.isSomethingTrue) {
-				value = 'hey there';
-			}
-
-			return value;
-		}
-	});
-```
-
-### Native bind instead of `_.bindAll`
-
-We have [es5-shim](https://github.com/es-shims/es5-shim) as part of our `base_bundle` thus, `bind` is present and we sholuld use it in favor of any other utility. (like `underscore`).
-
-``` javascript
-	// Bad
-	return Marionette.ItemView.extend({
-		initialize: function(options) {
-			_.bindAll(this, 'someMethod');
-
-			this.listenTo(channel.vent, 'someSignal', this.someMethod);
-		},
-
-		someMethod: function(options) {
-			/* do something */
-		}
-	});
-
-	// Good
-	return Marionette.ItemView.extend({
-		initialize: function(options) {
-			this.listenTo(channel.vent, 'someSignal', this.someMethod.bind(this));
-		},
-
-		someMethod: function(options) {
-			/* do something */
-		}
-	});
-```
+**[⬆ back to top](#table-of-contents)**
