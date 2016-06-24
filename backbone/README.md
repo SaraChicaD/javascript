@@ -2,97 +2,89 @@
 
 Guidelines used by Eventbrite to provide consistency and prevent errors in JavaScript code written for [Backbone.js](backbonejs.org) and [Marionette.js](marionettejs.com).
 
+Backbone and Marionette come with a rich API and also functions provided by [underscore](http://underscorejs.org/) (`_`) and [jquery]((http://api.jquery.com/category/version/1.7/)) (`$`). Although good and fast to use, these utilities can be hard to navigate or even challenging when building large-scale applications. Many times midway through development, we find that were used the tools incorrectly and have to change course, resulting in Frankenstein code. This guide will attempt to ease some of these problems.
+
 ## Table of Contents
 
-0. [What is Backbone.js?](#what-is-backbonejs)
-	0. [What not to use from Backbone] (#what-not-to-use-from-backbone)
-0. [What is Marionette.js?](#what-is-marionettejs)
-	0. [What not to use from Marionette] (#what-not-to-use-from-marionette)
-0. [What Plugins are used at Eventbrite?](#what-plugins-are-used-at-eventbrite)
-0. [Common terminology] (#common-terminology)
+0. [Backbone.js](#backbonejs)
+0. [Marionette.js](#marionettejs)
+0. [Additional plugins](#additional-plugins)
+0. [Common terminology](#common-terminology)
 0. [Good Practices](#good-practices)
-	0. [Function] (#good-practices-functions)
+	0. [Function](#good-practices-functions)
 	0. [Hydrating apps](#good-practices-hydrating-apps)
-		0. [Static or on Bootstrap] (#good-practices-static-hydration)
-		0. [dynamic] (#good-practices-dynamic-hydration-apps)
+		0. [Static or on Bootstrap](#good-practices-static-hydration)
+		0. [dynamic](#good-practices-dynamic-hydration-apps)
 	0. [Marionette.Layout](#marionette-layout)
-		0. [Regions] (#marionette-regions)
-	0. [Marionette.Views] (#marionette-views)
-	0. [Backbone.Model] (#backbonemodel)
-		0. 	[Handling errors] (#handling-errors-on-models)
-	0. [Backbone.Collection] (#marionette-collection)
-		0. [Handling errors] (#handling-errors-on-collections)
-0. [Marionette Artifacts Life Cycle] (#marionette-artifacts-life-cycle)
-0. [Backbone Life Cycle] ()
+		0. [Regions](#marionette-regions)
+	0. [Marionette.Views](#marionette-views)
+	0. [Backbone.Model](#backbonemodel)
+		0. 	[Handling errors](#handling-errors-on-models)
+	0. [Backbone.Collection](#marionette-collection)
+		0. [Handling errors](#handling-errors-on-collections)
+0. [Marionette Artifacts Life Cycle](#marionette-artifacts-life-cycle)
+0. [Backbone Life Cycle]()
 0. [Architecting JS Apps at Eventbrite](#architecting-js-apps-at-eventbrite)
-	0. [app.js] (#app.js)
-	0. [Templates] (#templates)
-	0. [File structure] (#file-structure)
-	0. [File name conventions] (#file-name-conventions)
-	0. [Eb Flux] (#eb-flux-architecture)
-		0. [Stores] (#eb-flux-stores)
-		0. [Views] (#eb-flux-views)
-		0. [Actions] (#eb-flux-actions)
-0. [debugging common issues] (#debugging-common-issues)
+	0. [app.js](#app.js)
+	0. [Templates](#templates)
+	0. [File structure](#file-structure)
+	0. [File name conventions](#file-name-conventions)
+	0. [Eb Flux](#eb-flux-architecture)
+		0. [Stores](#eb-flux-stores)
+		0. [Views](#eb-flux-views)
+		0. [Actions](#eb-flux-actions)
+0. [debugging common issues](#debugging-common-issues)
 
 
-## What is Backbone.js
+## Backbone.js
 
 From the [Backbone.js](http://backbonejs.org/) docs:
 
 > Backbone.js gives structure to web applications by providing **models** with key-value binding and custom events, **collections** with a rich API of enumerable functions, **views** with declarative event handling, and connects it all to your existing API over a RESTful JSON interface.
 
-Eventbrite still uses v1.0.0 of Backbone.
-For more, see [Getting started with Backbone.js](http://backbonejs.org/#Getting-started).
+Eventbrite still uses v1.0.0 of Backbone. For more, see [Getting started with Backbone.js](http://backbonejs.org/#Getting-started).
 
-### What not to use from Backbone
-*Backbone.View*: deprecated in our platform giving the presence of **Marionette** in every page. Please use [Marionette.Views] (#marionette-views) instead.
+_NOTE:_ [`Backbone.View`](http://backbonejs.org/#View) is deprecated in favor of using [Marionette views](#marionette-views).
 
-## What is Marionette.js
+## Marionette.js
 
-From the [Marionette.ItemView.js](http://marionettejs.com/) docs:
+From the [Marionette.js](http://marionettejs.com/) docs:
 
 > Marionette simplifies your Backbone application code with robust views and architecture solutions.
 
 Eventbrite still uses v1.8.8 of Marionette.ItemView. For more, see [Marionette v1.8.8 docs](http://marionettejs.com/docs/v1.8.8/).
 
-We use a selection of Plugins that improve some aspects of Marionette/Backbone, for more, see [what Plugins are used at Eventbrite?] (#what-plugins-are-used-at-eventbrite)
+_NOTE:_ [`Marionette.Application.module`](http://marionettejs.com/docs/v1.8.8/marionette.application.module.html) is deprecated in favor of [`Marionette.Layout`](http://marionettejs.com/docs/v1.8.8/marionette.layout.html). You will still see it used in certain parts of the product, such as in **Listings** or **My Contacts**.
 
-### What not to use from Marionette.js
+_NOTE:_ [`Marionette.Controller`](http://marionettejs.com/docs/v1.8.8/marionette.controller.html) is deprecated in favor of [`Marionette.Layout`](http://marionettejs.com/docs/v1.8.8/marionette.layout.html). [`Marionette.Object`](http://marionettejs.com/docs/v2.1.0/marionette.object.html) is also available. It was taken from a later version of Marionette and stitched in.
 
-*Marionette.Modules*: deprecated in our platform and still in use in some parts of the product (such **listings** and **my_contacts**) but we advice not to use it. instead use [Marionette.Layout] (#marionette-layout).
+## Additional plugins
 
-*Mariontette.Controller*: deprecated by Marionette it self and confusing giving that we don't do MVC on FrontEnd. instead use [Marionette.Layout] (#marionette-layout) or a [Marionette.Object] (#marionette-Object)
+We have a couple of plugins/libraries to enhance and simplify our use of Backbone/Marionette:
 
-## What Plugins are used at Eventbrite?
-
-We have a couple of plugins/libraries to enhance and simplify our use of Backbone/Marionette.ItemView.
-
-	* Backbone.Advice: Functional mixins for Backbone based
-	* dorsal: HTML decorator library.
-	* backbone.stickit: Backbone data binding plugin that binds Model attributes to View elements.
-	* backbone.validation: A validation plugin for Backbone.js that validates both your model as well as form input
-	* backbone.wreqr: A simple infrastructure based on messaging patterns and service bus implementations for decoupling Backbone and Backbone.Marionette applications.
+- [`Backbone.Advice`](https://github.com/rhysbrettbowen/Backbone.Advice): Adds functional mixin abilities for Backbone objects
+- [`dorsal`](https://github.com/eventbrite/dorsal): An HTML decorator library
+- [`Backbone.Stickit`](https://github.com/NYTimes/backbone.stickit): Backbone data binding plugin that binds Model attributes to View elements
+- [`Backbone.Validation`](https://github.com/thedersen/backbone.validation): A validation plugin for Backbone that validates both your model as well as form input
+- [`Backbone.Wreqr`](https://github.com/marionettejs/backbone.wreqr): Messaging patterns for Backbone applications
 
 ## Common terminology
-- Context
-- Hydrating
-- Bootstrap
-- Module
-- Component
-- app
-- parameters
-- argument
-- config
-- artifact
-- helpers
-- mixins
-- base_bundle
-- bundle
 
-# Good Practices
+- _context_:
+- _hydrating_:
+- _bootstrap_:
+- _module_:
+- _component_:
+- _app_:
+- _parameters_:
+- _argument_:
+- _config_:
+- _artificat_:
+- _helpers_:
+- _mixins_:
+- _base bundle_:
+- _bundle_:
 
-Backbone and Marionette come with a rich API and also functions provided by `underscore (_)` and `jquery($)`, this although good and fast to use, can be hard to navigate or even challenging when build applications with the same concepts behind it. this guide will attempt to ease some this of problems.
 
 ### Requiring Marionette
 
