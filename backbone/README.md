@@ -1,6 +1,6 @@
 # Eventbrite Backbone & Marionette Coding Style Guide
 
-Guidelines used by Eventbrite to provide consistentcy and prevent errors in JavaScript code written for [Backbone.js](backbonejs.org) and [Marionette.ItemView.js](marionettejs.com).
+Guidelines used by Eventbrite to provide consistency and prevent errors in JavaScript code written for [Backbone.js](backbonejs.org) and [Marionette.js](marionettejs.com).
 
 ## Table of Contents
 
@@ -46,7 +46,7 @@ Eventbrite still uses v1.0.0 of Backbone.
 For more, see [Getting started with Backbone.js](http://backbonejs.org/#Getting-started).
 
 ### What not to use from Backbone
-*Backbone.View*: deprecated in our platform giving the presence of **Marionette** in every page. Please use [Marionette.Views] (#marionette-views) instead. 
+*Backbone.View*: deprecated in our platform giving the presence of **Marionette** in every page. Please use [Marionette.Views] (#marionette-views) instead.
 
 ## What is Marionette.js
 
@@ -258,29 +258,29 @@ Often we are in need of some `className`, `selector` or `text (gettext)` that ne
  		}
 	});
 ```
-### styles and js separate 
+### styles and js separate
 
-put styles classes in handlebars and the logic in the view.  this simplify the searchs when trying to find templates. 
+put styles classes in handlebars and the logic in the view.  this simplify the searchs when trying to find templates.
 
 ``` javascript
-	
-	// Bad 
-	
+
+	// Bad
+
 	return Marionette.ItemView({
 		classname: 'g-cell g-cell-12-12'
 	});
-	
+
 	// Good
-	
+
 	/*some_view.handlebars */
-	
+
 	<div class="g-cell g-cell-12-12"> </div>
-	
+
 	/* some_view.js */
-	
+
 	var Marionette = require('marionette'),
 		template = require('hb!./some_view.handlebars');
-		
+
 	return Marionette.ItemView({
 		template: template
 	});
@@ -291,94 +291,94 @@ put styles classes in handlebars and the logic in the view.  this simplify the s
 
 there are some common issues that we encounter regarding logic preferences, the following recommendations are based on what we have seen over the past years that helps to our code review speed and helps.
 
-### avoid negative statements in conditional expressions 
+### avoid negative statements in conditional expressions
 
-When evaluating logic, positive conditional expresion form are easier to wrap our heads around them. instead we could gather the options in a variable so it can be understood later or try to flip the logic so it considers the positive case first. 
+When evaluating logic, positive conditional expresion form are easier to wrap our heads around them. instead we could gather the options in a variable so it can be understood later or try to flip the logic so it considers the positive case first.
 
 ``` javascript
-	// Bad 
-	
+	// Bad
+
 	if (!something || !somethingElse ) {
 		/* do stuff */
 	} else {
 		/* do other stuff */
 	}
-	
+
 	// Ok
-	
+
 	var hasTheNeededState = !something || !somethingElse;
-	
+
 	if (hasTheNeededState) {
 		/* do stuff*/
 	} else {
-		/* do other stuff */	
+		/* do other stuff */
 	}
-	
+
 	// Good
-	
+
 	if (something || somethingElse) {
 		/* do stuff*/
 	} else {
-		/* do other stuff */	
+		/* do other stuff */
 	}
 ```
 
-### avoid nested `if else` statements 
+### avoid nested `if else` statements
 
-Creating nested chains of conditions makes refactor really hard. instead split the decision into functions that can return simple actions. (separate decision from action); 
+Creating nested chains of conditions makes refactor really hard. instead split the decision into functions that can return simple actions. (separate decision from action);
 
-``` javascript 
+``` javascript
  // Bad
- 
+
  if (this.something()) {
  	/* do stuff */
  }  else if (this.otherSomething()) {
  	/* do other stuff */
  } else if (this.somethingEvenMoreCurious()) {
- 	/* yet another thing */ 
+ 	/* yet another thing */
  } else {
  	/* default something */
  }
- 
+
  // Good
  /* decision */
  var whatToDoWithTheThing = this.getSomethingAction();
  /* exectution */
  this[whatToDoWithTheThing]();
- 
+
 ```
 
 ### avoid using `this` to store persistent data
 
 contextual data is often fragile and error prone when code review (static analisis).
 
-instead we could choose to calculate when is required or have a model storing the needed computed information  or reference. 
+instead we could choose to calculate when is required or have a model storing the needed computed information  or reference.
  > keep in mind `options` received on instantiation are reachable via `this.options` inside the view.
 
-``` javascript 
+``` javascript
 
 	// Bad
 	return Marionette.ItemView.extend({
 		initialize: function(options) {
 			this.computedData = someTransformation(options);
 		}
-		
+
 		getComputedData: function() {
 			return this.computedData;
 		}
 	});
-	
-	// Ok 
+
+	// Ok
 	return Marionette.ItemView.extend({
-		
+
 		getComputedData: function() {
 			return someDataTransformation(this.options);
 		}
 	});
-	
+
 	// Good
 	return Marionette.ItemView.extend({
-		
+
 		getComputedData: function() {
 			return this.model.getComputedData();
 		}
@@ -387,30 +387,30 @@ instead we could choose to calculate when is required or have a model storing th
 
 ### default case instead of ternary statement
 
-sometimes we need to assign a value only when a condition is met. in these cases we will be tempted to use a simple ternanry even tho we don't have a value for when the condition is not met. 
+sometimes we need to assign a value only when a condition is met. in these cases we will be tempted to use a simple ternanry even tho we don't have a value for when the condition is not met.
 
 For these cases we prefer a default case and to alter such a value if the condition is met.
 
-applying this pattern provides more robust mantainability over time and uses the basic structures of the language in a more formal way (ternaries are used under the assumption that we need a value) 
+applying this pattern provides more robust mantainability over time and uses the basic structures of the language in a more formal way (ternaries are used under the assumption that we need a value)
 
 ``` javascript
 	// Bad
 	return Marionette.ItemView.extend({
 		someMethod: function(options) {
-			return options.isSomethingTrue ? 'hey there' : undefined; 
+			return options.isSomethingTrue ? 'hey there' : undefined;
 		}
 	});
-	
+
 	// Good
 	return Marionette.ItemView.extend({
 		someMethod: function(options) {
 			var value;
-		
+
 			if (options.isSomethingTrue) {
 				value = 'hey there';
 			}
-			
-			return value; 
+
+			return value;
 		}
 	});
 ```
@@ -424,25 +424,23 @@ We have [es5-shim](https://github.com/es-shims/es5-shim) as part of our `base_bu
 	return Marionette.ItemView.extend({
 		initialize: function(options) {
 			_.bindAll(this, 'someMethod');
-			
-			this.listenTo(channel.vent, 'someSignal', this.someMethod); 
+
+			this.listenTo(channel.vent, 'someSignal', this.someMethod);
 		},
-		
+
 		someMethod: function(options) {
 			/* do something */
 		}
 	});
-	
+
 	// Good
 	return Marionette.ItemView.extend({
 		initialize: function(options) {
-			this.listenTo(channel.vent, 'someSignal', this.someMethod.bind(this)); 
+			this.listenTo(channel.vent, 'someSignal', this.someMethod.bind(this));
 		},
-		
+
 		someMethod: function(options) {
 			/* do something */
 		}
 	});
 ```
-
-	
