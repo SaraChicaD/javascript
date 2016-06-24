@@ -10,6 +10,7 @@ Backbone and Marionette come with a rich API and also functions provided by [und
 0. [Marionette.js](#marionettejs)
 0. [Additional plugins](#additional-plugins)
 0. [Common terminology](#common-terminology)
+0. [File structure](#file-structure)
 0. [Good Practices](#good-practices)
 	0. [Function](#good-practices-functions)
 	0. [Hydrating apps](#good-practices-hydrating-apps)
@@ -85,79 +86,65 @@ We have a couple of plugins/libraries to enhance and simplify our use of Backbon
 - _base bundle_:
 - _bundle_:
 
+## File structure
 
-### Requiring Marionette
+A reference to `Marionette` can actually be retrieved from a reference to `Backbone`. However, we recommend requiring `Marionette` separately so that if we try to simply our stack, we don't have to change a considerable amount of code to remove the `Backbone` dependency/namespace.
 
-Backbone and Marionette are realated (we can pull Marionette from within Backbone):
+```js
+// good
+var Marionette = require('marionette');
 
- ``` javascript
- 	//Bad
- 	Backbone = require('backbone');
+return Marionette.ItemView.extend({ /* do something here */ });
 
- 	return Backbone.Marionette.ItemView.extend({ /* do something here */ });
- ```
-We recommend to pull Marionette independiently
-**Reason**: If we try to simplify our stack we would have to change a considrable amount of code to remove Backbone as a dependency or a namespace. instead:
+// bad (access Marionette from Backbone)
+var Backbone = require('backbone');
 
- ``` javascript
- 	//Good
- 	Marionette = require('marionette');
+return Backbone.Marionette.ItemView.extend({ /* do something here */ });
+```
 
- 	return Marionette.ItemView.extend({ /* do something here */ });
- ```
+Whenever possible, return only one [artifact](#common-terminology) per file:
 
-### one return per file.
-We try to keep one Artifact per file.
+```js
+// good
 
- ``` javascript
- 	file_with_views.js
+//view_a.js
 
- 	// Bad
- 	var Marionette = require('marionette'),
- 		a = Marionette.ItemView.extend({ /* do something here */ }),
- 		b = Marionette.ItemView.extend({ /* do something here */ });
+var Marionette = require('marionette');
 
- 	return {a: a, b: b};
+return Marionette.ItemView.ItemView.extend({ /* do something here */ });
 
- ```
+//view_b.js
 
- instead we would have 2 files.
+var Marionette = require('marionette');
 
- ``` javascript
- 	// Good
+return Marionette.ItemView.ItemView.extend({ /* do something here */ });
 
- 	//view_a.js
 
- 	var Marionette = require('marionette');
+// bad (returning multiple artifacts in one file)
 
- 	return Marionette.ItemView.ItemView.extend({ /* do something here */ });
+var Marionette = require('marionette'),
+	ViewA = Marionette.ItemView.extend({ /* do something here */ }),
+	ViewB = Marionette.ItemView.extend({ /* do something here */ });
 
- 	//view_b.js
+return {ViewA: ViewA, ViewB: ViewB};
+```
 
- 	var Marionette = require('marionette');
+Whenever possible, return the artifact immediately instead of assigning to a variable that just gets returned afterward.
 
- 	return Marionette.ItemView.ItemView.extend({ /* do something here */ });
- ```
+```js
+// good
+var Marionette = require('marionette');
 
-### return without namespace
-Find yet another name for a variable that only is used to be returned is hard. let's not waste energy there.
+return Marionette.ItemView.ItemView.extend({ /* do something here */ });
 
- ``` javascript
- 	// Bad
+// bad (assigns the ItemView to a variable unnecessarily)
+var Marionette = require('marionette'),
+	MyItemView;
 
- 	var Marionette = require('marionette'),
- 		a;
+MyItemView = Marionette.ItemView.extend({ /* do something here */ });
 
- 	a = Marionette.ItemView.ItemView.extend({ /* do something here */ });
-
- 	return a;
-
- 	// Good
-
- 	var Marionette = require('marionette');
-
- 	return Marionette.ItemView.ItemView.extend({ /* do something here */ });
- ```
+return MyItemView;
+```
 
 ## Good Practices: Functions
 
