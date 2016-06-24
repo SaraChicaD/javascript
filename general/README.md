@@ -86,7 +86,7 @@ For more details, check out [_Replacing the `switch` statement for object litera
 
 ## Ternary statements
 
-Simple ternary expressions can be handy when we need to conditionally assign a value to a variable when the condition is both true and false. However, when we only want to assign the variable when the condition is true, we may be tempted to still use a ternary and return `undefined` for the false case.
+Simple ternary expressions can be handy when we need to conditionally assign a value to a variable when the condition is both true and false. However, when we only want to assign the variable when the condition is true, we may be tempted to still use a ternary and return `undefined, null, ''` for the false case.
 
 In this case, the preferred approach is to declare the value without assigning it (the default value is `undefined`) and then using an `if` statement to assign to it when the condition is met:
 
@@ -97,11 +97,15 @@ var value;
 if (options.isSomethingTrue) {
     value = 'hey there';
 }
+return value;
 
-// bad (uses a ternary that returns undefined)
+// bad (uses a ternary that returns undefined or null)
 var options.isSomethingTrue ? 'hey there' : undefined;
+
 ```
 
-Applying this pattern provides more robust maintenance over time and uses the basic structures of the language in a more formal way (ternaries are used under the assumption that we need a value).
+Applying this pattern provides more robust maintenance and Traceability (on debugging) over time and uses the basic structures of the language in a more formal way (ternaries are used under the assumption that we need a value).
+
+This correlates as well with a defined state and later on if needed altering such state instead of having an default state that is dynamic.
 
 **[⬆ back to top](#table-of-contents)**

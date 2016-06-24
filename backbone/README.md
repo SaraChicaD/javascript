@@ -88,7 +88,7 @@ We have a couple of plugins/libraries to enhance and simplify our use of Backbon
 - _parameters_ -
 - _argument_ -
 - _config_ -
-- _artificat_ -
+- _artifact_ -
 - _helpers_ -
 - _mixins_ -
 - _base bundle_ -
@@ -121,13 +121,13 @@ Whenever possible, return only one [artifact](#common-terminology) per file:
 
 var Marionette = require('marionette');
 
-return Marionette.ItemView.ItemView.extend({ /* do something here */ });
+return Marionette.ItemView.extend({ /* do something here */ });
 
 //view_b.js
 
 var Marionette = require('marionette');
 
-return Marionette.ItemView.ItemView.extend({ /* do something here */ });
+return Marionette.ItemView.extend({ /* do something here */ });
 
 
 // bad (returning multiple artifacts in one file)
@@ -145,7 +145,7 @@ Whenever possible, return the artifact immediately instead of assigning to a var
 // good
 var Marionette = require('marionette');
 
-return Marionette.ItemView.ItemView.extend({ /* do something here */ });
+return Marionette.ItemView.extend({ /* do something here */ });
 
 // bad (assigns the ItemView to a variable unnecessarily)
 var Marionette = require('marionette'),
