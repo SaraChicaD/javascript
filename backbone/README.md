@@ -350,7 +350,6 @@ return Marionette.ItemView.extend({
 
 // ok (the View is doing data calculations that could be done by Model)
 return Marionette.ItemView.extend({
-
 	getComputedData: function() {
 		return someDataTransformation(this.options);
 	}

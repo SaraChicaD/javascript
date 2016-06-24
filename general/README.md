@@ -80,6 +80,8 @@ if (this.something()) {
 }
 ```
 
+For more details, check out [_Replacing the `switch` statement for object literals_](https://toddmotto.com/deprecating-the-switch-statement-for-object-literals/).
+
 **[⬆ back to top](#table-of-contents)**
 
 ## Ternary statements
