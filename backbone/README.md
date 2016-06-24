@@ -11,6 +11,8 @@ Backbone and Marionette come with a rich API and also functions provided by [und
 0. [Additional plugins](#additional-plugins)
 0. [Common terminology](#common-terminology)
 0. [File structure](#file-structure)
+0. [Statics](#statics)
+0. [Styling](#styling)
 0. [Good Practices](#good-practices)
 	0. [Function](#good-practices-functions)
 	0. [Hydrating apps](#good-practices-hydrating-apps)
@@ -71,24 +73,24 @@ We have a couple of plugins/libraries to enhance and simplify our use of Backbon
 
 ## Common terminology
 
-- _context_:
-- _hydrating_:
-- _bootstrap_:
-- _module_:
-- _component_:
-- _app_:
-- _parameters_:
-- _argument_:
-- _config_:
-- _artificat_:
-- _helpers_:
-- _mixins_:
-- _base bundle_:
-- _bundle_:
+- _context_ -
+- _hydrating_ -
+- _bootstrap_ -
+- _module_ -
+- _component_ -
+- _app_ -
+- _parameters_ -
+- _argument_ -
+- _config_ -
+- _artificat_ -
+- _helpers_ -
+- _mixins_ -
+- _base bundle_ -
+- _bundle_ -
 
 ## File structure
 
-A reference to `Marionette` can actually be retrieved from a reference to `Backbone`. However, we recommend requiring `Marionette` separately so that if we try to simply our stack, we don't have to change a considerable amount of code to remove the `Backbone` dependency/namespace.
+A reference to `Marionette` can actually be retrieved from a reference to `Backbone`. However, we recommend requiring `Marionette` separately so that if we try to simply our stack, we don't have to change a considerable amount of code to remove the `Backbone` dependency/namespace:
 
 ```js
 // good
@@ -129,7 +131,7 @@ var Marionette = require('marionette'),
 return {ViewA: ViewA, ViewB: ViewB};
 ```
 
-Whenever possible, return the artifact immediately instead of assigning to a variable that just gets returned afterward.
+Whenever possible, return the artifact immediately instead of assigning to a variable that just gets returned afterward:
 
 ```js
 // good
@@ -146,125 +148,120 @@ MyItemView = Marionette.ItemView.extend({ /* do something here */ });
 return MyItemView;
 ```
 
-## Good Practices: Functions
+## Statics
 
-### Stateless functions (helpers, static functions)
+When we write views or models/collections, we tend to enclose all of our functions as methods on the artifact. However, sometimes these methods are really just static helpers that don't need context (i.e. not bound to `this`). In this case, it's better to extract out the function as a private helper, which also simplifies the API exposed by the artifact:
 
-When we write Views or Models/Collections we tend to enclusure all our functions within the artifact. Sometimes we have `functions` that are used as `helpers`. this technic gets much more use when working in other technologies where the framework is less predominant. We tend to recomend such technic when possible.
+```js
+// good
+var Marionette = require('marionette');
 
-If a function doesn't need context (not binded to `this`) we recommend to extract this function, making it private. this helps to simplify what we expose as well as the code review process, it also helps to understand possible issues when dynamic interpretation happens (when running the code).
+function extractAttributes(options) {
+	var attrs = {};
+	// do stuff
+	return attrs;
+};
 
-``` javascript
-	// Bad
-	var Marionette = require('marionette');
+return Marionette.ItemView.extend({
+	initialize: function(options) {
+		var attrs = extractAttributes(options);
 
- 	return Marionette.ItemView.extend({
- 		initialize: function(options) {
- 			var attrs = this.exractAttributes(options);
+		this.model = new Backbone.Model(attrs);
+	};
+});
 
- 			this.model = new Backbone.Model(attrs);
- 		},
- 		extracAttributes: function(options) {
-			var attrs = {};
-			// some process that needs to be done
-			return attrs;
-		}
- 	});
+// bad (extractAttributes is an additional method on the view unnecessarily)
+var Marionette = require('marionette');
 
- 	// Good
- 	var Marionette = require('marionette');
+return Marionette.ItemView.extend({
+	initialize: function(options) {
+		var attrs = this.exractAttributes(options);
 
-	function extracAttributes(options) {
+		this.model = new Backbone.Model(attrs);
+	},
+	extracAttributes: function(options) {
 		var attrs = {};
-		// some process that needs to be done
+		// do stuff
 		return attrs;
+	}
+});
+```
+
+Oftentimes an artifact needs some static/constant data that never need to change. Instead of having magic numbers/strings in the code, or having a configuration object attached to each instance, we should store the configuration information in a const object variable:
+
+```js
+// good
+var $ = require('jquery'),
+	Marionette = require('marionette'),
+	config = {
+		selectorName: 'someDynamicSelector',
+		isHiddenClass: 'is-hidden',
+		timeout: 10
 	};
 
- 	return Marionette.ItemView.extend({
- 		initialize: function(options) {
- 			var attrs = exractAttributes(options);
+return Marionette.ItemView.extend({
+	initialize: function(options) {
+		$(config.selectorName).add(config.isHiddenClass);
+		window.setTimeout(this.someCallback, config.timeout);
+	}
+});
 
- 			this.model = new Backbone.Model(attrs);
- 		};
- 	});
-```
-### Static content (config object, magical words/numbers).
-Often we are in need of some `className`, `selector` or `text (gettext)` that needs to be used but doesn't change (is not provided by any dynamic or external input such as a partent View, Layout or event). For such occasions we store all this data in a static object called `config`.
+// ok (config objects exists as a property for each view instance)
+var $ = require('jquery'),
+	Marionette = require('marionette');
 
-``` javascript
-	// Bad
-	var $ = require('jquery'),
-		Marionette = require('marionette');
+return Marionette.ItemView.extend({
+	config: {
+		selectorName: 'someDynamicSelector',
+		isHiddenClass: 'is-hidden',
+		timeout: 10
+	},
+	initialize: function(options) {
+		$(this.config.selectorName).addClass(this.config.isHiddenClass);
+		window.setTimeout(this.someCallback, this.config.timeout);
+	}
+});
 
-	return Marionette.ItemView.extend({
-  		initialize: function(options) {
- 			$('someDynamicSelector').addClass('is-hidden');
+// bad (uses magic numbers/strings)
+var $ = require('jquery'),
+	Marionette = require('marionette');
 
- 			window.setTimeout(this.someCallback, 10);
- 		}
- 	});
-
-	// Ok
-	var $ = require('jquery'),
-		Marionette = require('marionette');
-
-	return Marionette.ItemView.extend({
-		config: {
-			'selectorName': 'someDynamicSelector',
-			'isHiddenClass': 'is-hidden',
-			timeOut: 10
-		},
- 		initialize: function(options) {
-			$(this.config.selectorName).addClass(this.config.isHiddenClass);
-
- 			window.setTimeout(this.someCallback, this.config.timeOut);
- 		}
-	});
-
-	// Good
-	var $ = require('jquery'),
-		Marionette = require('marionette'),
-		config = {
-			'selectorName': 'someDynamicSelector',
-			'isHiddenClass': 'is-hidden',
-			timeOut: 10
-		};
-
-	return Marionette.ItemView.extend({
-        initialize: function(options) {
-            $(config.selectorName).add(config.isHiddenClass);
- 		    window.setTimeout(this.someCallback, config.timeOut);
- 		}
-	});
-```
-### styles and js separate
-
-put styles classes in handlebars and the logic in the view.  this simplify the searchs when trying to find templates.
-
-``` javascript
-
-	// Bad
-
-	return Marionette.ItemView({
-		classname: 'g-cell g-cell-12-12'
-	});
-
-	// Good
-
-	/*some_view.handlebars */
-
-	<div class="g-cell g-cell-12-12"> </div>
-
-	/* some_view.js */
-
-	var Marionette = require('marionette'),
-		template = require('hb!./some_view.handlebars');
-
-	return Marionette.ItemView({
-		template: template
-	});
+return Marionette.ItemView.extend({
+	initialize: function(options) {
+		$('someDynamicSelector').addClass('is-hidden');
+		window.setTimeout(this.someCallback, 10);
+	}
+});
 ```
 
+## Styling
+
+To simplify searches when trying to find templates, put CSS classes in handlebars templates instead of coupling it with the view logic:
+
+```js
+// good
+
+// some_view.handlebars
+
+<div class="g-cell g-cell-12-12"></div>
+
+// some_view.js
+
+var Marionette = require('marionette'),
+	template = require('hb!./some_view.handlebars');
+
+return Marionette.ItemView({
+	template: template
+});
+
+
+// bad (CSS classes aren't separated out)
+var Marionette = require('marionette');
+
+return Marionette.ItemView({
+	classname: 'g-cell g-cell-12-12'
+});
+```
 
 ## Good Practices: Algorithms
 
