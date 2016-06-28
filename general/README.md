@@ -97,6 +97,7 @@ var value;
 if (options.isSomethingTrue) {
     value = 'hey there';
 }
+
 return value;
 
 // bad (uses a ternary that returns undefined or null)
@@ -108,4 +109,93 @@ Applying this pattern provides more robust maintenance and Traceability (on debu
 
 This correlates as well with a defined state and later on if needed altering such state instead of having an default state that is dynamic.
 
+a good case study could be the following code: 
+
+for this example we have created a ficcional segment of code. 
+
+**_First iteration_**: nothing fancy, just a method that needs to gather some information.
+
+```js
+var isAllowed = hasParent & isOwner,
+    parentEvent = isAllowed ? getParentEvent() : undefined;
+    
+    /* some use of these 2 variables late on..*/
+```
+**_Second iteration_**: Another developer comes around and adds yet another condition following the current style given that a refactor is neither need nor part of the scope. 
+
+```js
+var isAllowed = hasParent & isOwner,
+    parentEvent = isAllowed ? getParentEvent() : undefined,
+    anotherOptions = isAllowed ? undefined : getOptions();
+   
+    /* some use of these 3 variables late on..*/
+```
+**_Third iteration_**: yet another team needs more variables added to this method to add features to it. 
+
+``` js
+var isAllowed = hasParent & isOwner,
+    parentEvent = isAllowed ? getParentEvent() : undefined,
+    anotherOptions = isAllowed ? undefined : getOptions();
+    childEventsTitles = isAllowed ? getEventChildTitles() : undefined;
+    ownerAccount = isAllowed ? undefined : getOwnerAccount(); 
+   
+    /* some use of these 4 variables late on..*/
+```
+
+At this point telling what is the base state for this method is quite hard giving that all the possible states are based on ternaries. 
+
+furthermore optimization (we use the same isAllowed 4 times) now is deliced given that we should understand this code way better. 
+
+if this code would have fallowed our recomendation, the steps would look like the most clear way we could write this code. 
+
+**_first Step revisited_**:
+
+```js
+var isAllowed = hasParent & isOwner,
+    parentEvent = undefined;
+    
+    If (isAllowed) {
+    	parentEvent = getParentEvent();
+    }
+    
+    /* some use of these 2 variables late on..*/
+```
+ **_Third iteration revisited_**
+
+```js
+var isCurry = bitmask & CURRY_FLAG,
+    newHolders,
+    newPartials,
+    newHoldersRight,
+    newPartialsRight;
+   
+if (isCurry) {
+   newHolders = holders;
+   newPartials = partials;
+} else {
+ 	newHodldersRight = holders;
+ 	newPartialsRight = partials;
+}
+   
+``` 
+
+## Avoid indirection when possible. 
+
+re-assigning variables when no transformation is needed creates indirection and is prone to induce errors later on.
+
+```js
+// good
+
+_handleEvent = function(e) {
+  _doSomethingWithEvent(e.target.checked);   
+}
+
+// bad
+
+_handleEvent = function(e) {
+ var checked = e.target.checked;
+ 
+  _doSomethingWithEvent(checked);   
+}
+```
 **[⬆ back to top](#table-of-contents)**
