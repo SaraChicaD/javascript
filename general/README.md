@@ -5,7 +5,7 @@ Guidelines and best practices used by Eventbrite to provide consistency and prev
 ## Table of Contents
 
 0. [Conditionals](#conditionals)
-
+0. [Assignments](#assignments)
 
 ## Conditionals
 
@@ -84,7 +84,7 @@ For more details, check out [_Replacing the `switch` statement for object litera
 
 **[⬆ back to top](#table-of-contents)**
 
-## Ternary statements
+### Ternary statements
 
 Simple ternary expressions can be handy when we need to conditionally assign a value to a variable when the condition is both true and false. However, when we only want to assign the variable when the condition is true, we may be tempted to still use a ternary and return `undefined, null, ''` for the false case.
 
@@ -105,97 +105,118 @@ var options.isSomethingTrue ? 'hey there' : undefined;
 
 ```
 
-Applying this pattern provides more robust maintenance and Traceability (on debugging) over time and uses the basic structures of the language in a more formal way (ternaries are used under the assumption that we need a value).
+Applying this pattern provides more robust maintenance and traceability (in debugging) over time and uses the basic structures of the language in a more formal way (ternaries are used under the assumption that we need a value).
 
 This correlates as well with a defined state and later on if needed altering such state instead of having an default state that is dynamic.
 
-a good case study could be the following code: 
+#### Case study
 
-for this example we have created a ficcional segment of code. 
+Let's look at a case study of how code can evolve over time. For this example we have created a fictional piece of code.
 
-**_First iteration_**: nothing fancy, just a method that needs to gather some information.
+**_First iteration_**: nothing fancy, just a method that needs to gather some information:
 
 ```js
-var isAllowed = hasParent & isOwner,
+var isAllowed = hasParent && isOwner,
     parentEvent = isAllowed ? getParentEvent() : undefined;
-    
-    /* some use of these 2 variables late on..*/
+
+/* some use of these 2 variables later on... */
 ```
-**_Second iteration_**: Another developer comes around and adds yet another condition following the current style given that a refactor is neither need nor part of the scope. 
+
+**_Second iteration_**: another developer comes around and adds yet another condition following the current style given that a refactor is not really needed, and probably out of scope:
 
 ```js
-var isAllowed = hasParent & isOwner,
+var isAllowed = hasParent && isOwner,
     parentEvent = isAllowed ? getParentEvent() : undefined,
-    anotherOptions = isAllowed ? undefined : getOptions();
-   
-    /* some use of these 3 variables late on..*/
+    options = isAllowed ? undefined : getOptions();
+
+/* some use of these 3 variables later on... */
 ```
-**_Third iteration_**: yet another team needs more variables added to this method to add features to it. 
+
+**_Third iteration_**: another team comes in needing more functionality and adds even more variables:
 
 ``` js
-var isAllowed = hasParent & isOwner,
+var isAllowed = hasParent && isOwner,
     parentEvent = isAllowed ? getParentEvent() : undefined,
-    anotherOptions = isAllowed ? undefined : getOptions();
-    childEventsTitles = isAllowed ? getEventChildTitles() : undefined;
-    ownerAccount = isAllowed ? undefined : getOwnerAccount(); 
-   
-    /* some use of these 4 variables late on..*/
+    options = isAllowed ? undefined : getOptions(),
+    childEventsTitles = isAllowed ? getEventChildTitles() : undefined,
+    ownerAccount = isAllowed ? undefined : getOwnerAccount();
+
+/* some use of these 5 variables later on... */
 ```
 
-At this point telling what is the base state for this method is quite hard giving that all the possible states are based on ternaries. 
+At this point, telling what is the base state for this method is quite hard, given that all the possible states are based on ternaries. Furthermore, because we use the same `isAllowed` four times, we have to know how all the state variables work in order to try optimize the code. The code is too fragile.
 
-furthermore optimization (we use the same isAllowed 4 times) now is deliced given that we should understand this code way better. 
+However, if this code would have followed the initial recommendation, the code wouldn't degrade as more functionality is added.
 
-if this code would have fallowed our recomendation, the steps would look like the most clear way we could write this code. 
-
-**_first Step revisited_**:
+**First iteration (revisited)_**:
 
 ```js
-var isAllowed = hasParent & isOwner,
-    parentEvent = undefined;
-    
-    If (isAllowed) {
-    	parentEvent = getParentEvent();
-    }
-    
-    /* some use of these 2 variables late on..*/
-```
- **_Third iteration revisited_**
+var isAllowed = hasParent && isOwner,
+    parentEvent;
 
-```js
-var isCurry = bitmask & CURRY_FLAG,
-    newHolders,
-    newPartials,
-    newHoldersRight,
-    newPartialsRight;
-   
-if (isCurry) {
-   newHolders = holders;
-   newPartials = partials;
-} else {
- 	newHodldersRight = holders;
- 	newPartialsRight = partials;
+if (isAllowed) {
+	parentEvent = getParentEvent();
 }
-   
-``` 
 
-## Avoid indirection when possible. 
+/* some use of these 2 variables later on... */
+```
 
-re-assigning variables when no transformation is needed creates indirection and is prone to induce errors later on.
+**_Second iteration (revisited)_**:
+
+```js
+var isAllowed = hasParent && isOwner,
+    parentEvent,
+    options;
+
+if (isAllowed) {
+	parentEvent = getParentEvent();
+} else {
+    options = getOptions();
+}
+
+/* some use of these 3 variables later on... */
+```
+
+ **_Third iteration (revisited)_**:
+
+```js
+var isAllowed = hasParent && isOwner,
+    parentEvent,
+    options,
+    childEventsTitles,
+    ownerAccount;
+
+if (isAllowed) {
+	parentEvent = getParentEvent();
+    childEventsTitles = getEventChildTitles();
+} else {
+    options = getOptions();
+    ownerAccount = getOwnerAccount();
+}
+
+/* some use of these 5 variables later on... */
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+## Assignments
+
+### Variable indirection
+
+Avoid variable indirection when possible. Reassigning variables when no transformation is needed creates unnecessary indirection, which is prone to introduce future errors.
 
 ```js
 // good
-
 _handleEvent = function(e) {
-  _doSomethingWithEvent(e.target.checked);   
+    _doSomethingWithEvent(e.target.checked);   
 }
 
 // bad
-
 _handleEvent = function(e) {
- var checked = e.target.checked;
- 
-  _doSomethingWithEvent(checked);   
+    var checked = e.target.checked;
+
+    _doSomethingWithEvent(checked);   
 }
 ```
+
 **[⬆ back to top](#table-of-contents)**
