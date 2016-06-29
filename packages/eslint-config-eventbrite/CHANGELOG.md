@@ -1,3 +1,6 @@
+## v2.1.0 (June 29, 2016)
+- (minor) turn off `no-confusing-rule`
+
 ## v2.0.0 (June 22, 2016)
 - (dev ops) added `babel-eslint` dependency so ES2016+ can be linted
 - (minor) relaxed `comma-dangle` to allow dangling commas for multi-line
