@@ -71,7 +71,7 @@ this[whatToDoWithTheThing]();
 // bad (mixed decisions and actions)
 if (this.something()) {
    /* do stuff */
-}  else if (this.otherSomething()) {
+} else if (this.otherSomething()) {
    /* do other stuff */
 } else if (this.somethingEvenMoreCurious()) {
    /* yet another thing */
