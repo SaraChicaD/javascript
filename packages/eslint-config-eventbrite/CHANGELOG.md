@@ -1,5 +1,5 @@
 ## v2.1.0 (June 29, 2016)
-- (minor) turn off `no-confusing-rule`
+- (minor) turn off `no-confusing-arrow`
 
 ## v2.0.0 (June 22, 2016)
 - (dev ops) added `babel-eslint` dependency so ES2016+ can be linted
