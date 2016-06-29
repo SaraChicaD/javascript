@@ -171,7 +171,7 @@ var isAllowed = hasParent && isOwner,
 if (isAllowed) {
 	parentEvent = getParentEvent();
 } else {
-    options = getOptions();
+	options = getOptions();
 }
 
 /* some use of these 3 variables later on... */
@@ -187,7 +187,7 @@ var isAllowed = hasParent && isOwner,
     ownerAccount;
 
 if (isAllowed) {
-	parentEvent = getParentEvent();
+    parentEvent = getParentEvent();
     childEventsTitles = getEventChildTitles();
 } else {
     options = getOptions();
