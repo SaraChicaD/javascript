@@ -17,10 +17,9 @@ module.exports = {
         // http://eslint.org/docs/rules/arrow-spacing
         'arrow-spacing': 'error',
 
-        // disallow arrow functions where they could be confused with comparisons
-        // unless a parentheses are used to disambiguate
+        // allow arrow functions where they could be confused with comparisons
         // http://eslint.org/docs/rules/no-confusing-arrow
-        'no-confusing-arrow': ['error', {allowParens: true}],
+        'no-confusing-arrow': 'off',
 
         // disallow duplicate module imports & exports
         // http://eslint.org/docs/rules/no-duplicate-imports
