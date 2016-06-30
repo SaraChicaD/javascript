@@ -1,3 +1,6 @@
+## v1.1.2 (June 22, 2016)
+- (dev ops) Bump `eslint-config-eventbrite` dependency to 2.1.0
+
 ## v1.1.1 (June 22, 2016)
 - (dev ops) Bump `eslint-config-eventbrite` dependency to 2.0.0
 
