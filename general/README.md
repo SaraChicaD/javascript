@@ -82,6 +82,52 @@ if (this.something()) {
 
 For more details, check out [_Replacing the `switch` statement for object literals_](https://toddmotto.com/deprecating-the-switch-statement-for-object-literals/).
 
+### Single `return` statement
+
+If possible, avoid using more than one return statement inside a given function. Instead, use a lookup map to handle the logic. It makes it easier for maintainability and avoids mixing decision with execution.
+```js
+// bad (multiple return statements)
+var getType = function(model) {
+    if (model % 2 !== 0) {
+        return 'odd';
+    } else if (model % 2 !== 0) {
+        return 'even';
+    } else if (model === 'Eventbrite') {
+        return 'Eventbrite';
+    }
+    return 'default';
+};
+
+// good (use a lookup map)
+var helpers = {
+    isOdd: function(value) {
+        return value % 2 !== 0;
+    },
+    isEven: function(value) {
+        return value % 2 === 0;
+    },
+    isEventbrite: function(value) {
+    	return value === 'Eventbrite';
+    }
+}
+
+var types = {
+    isOdd: 'odd',
+    isEven: 'even',
+    isEventbrite: 'eventbrite'
+};
+
+_getType = function(types, model) {
+    var type = _.find(types, function(value, key) {
+        // will return the first value of the key that evaluates to true;
+        return helpers[key](model);
+    }
+    return type || 'default';
+}
+
+/* NOTE: We are using Underscore's .find method here, but with ES6, we can use find natively.
+For more info, visit https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find */
+```
 **[⬆ back to top](#table-of-contents)**
 
 ### Ternary statements
@@ -218,58 +264,5 @@ _handleEvent = function(e) {
     _doSomethingWithEvent(checked);   
 }
 ```
-### Single returns
 
-If possible, avoid using more than one return statement inside a given function. Instead, declare a local variable to reassign the value you want to return. It makes it easier for maintainability and avoids mixing decision with execution.
-```js
-// good (ES5)
-var _getInitialValue = function(defaultValue, values, placeholder) {
-    var initialValue;
-
-    if (_hasValue(defaultValue, values)) {
-        initialValue = defaultValue;
-    } else if (placeholder) {
-        initialValue = placeholder;
-    } else if (values.length) {
-        initialValue = values[0].value;
-    }
-    return initialValue;
-};
-
-// bad (ES5)
-_getInitialValue = function(defaultValue, values, placeholder) {
-    if (_hasValue(defaultValue, values)) {
-        return defaultValue;
-    } else if (placeholder) {
-        return placeholder;
-    } else if (values.length) {
-        return values[0].value;
-    }
-};
-
-// good (ES6)
-let _getInitialValue = (defaultValue, values, placeholder) => {
-    let initialValue;
-
-    if (_hasValue(defaultValue, values)) {
-        initialValue = defaultValue;
-    } else if (placeholder) {
-        initialValue = placeholder;
-    } else if (values.length) {
-        initialValue = values[0].value;
-    }
-    return initialValue;
-};
-
-// bad (ES6)
-_getInitialValue = (defaultValue, values, placeholder) => {
-    if (_hasValue(defaultValue, values)) {
-        return defaultValue;
-    } else if (placeholder) {
-        return placeholder;
-    } else if (values.length) {
-        return values[0].value;
-    }
-};
-```
 **[⬆ back to top](#table-of-contents)**
