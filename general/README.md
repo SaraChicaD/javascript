@@ -218,5 +218,58 @@ _handleEvent = function(e) {
     _doSomethingWithEvent(checked);   
 }
 ```
+### Single returns
 
+If possible, avoid using more than one return statement inside a given function. Instead, declare a local variable to reassign the value you want to return. It makes it easier for maintainability and avoids mixing decision with execution.
+```js
+// good (ES5)
+var _getInitialValue = function(defaultValue, values, placeholder) {
+    var initialValue;
+
+    if (_hasValue(defaultValue, values)) {
+        initialValue = defaultValue;
+    } else if (placeholder) {
+        initialValue = placeholder;
+    } else if (values.length) {
+        initialValue = values[0].value;
+    }
+    return initialValue;
+};
+
+// bad (ES5)
+_getInitialValue = function(defaultValue, values, placeholder) {
+    if (_hasValue(defaultValue, values)) {
+        return defaultValue;
+    } else if (placeholder) {
+        return placeholder;
+    } else if (values.length) {
+        return values[0].value;
+    }
+};
+
+// good (ES6)
+let _getInitialValue = (defaultValue, values, placeholder) => {
+    let initialValue;
+
+    if (_hasValue(defaultValue, values)) {
+        initialValue = defaultValue;
+    } else if (placeholder) {
+        initialValue = placeholder;
+    } else if (values.length) {
+        initialValue = values[0].value;
+    }
+    return initialValue;
+};
+
+// bad (ES6)
+_getInitialValue = (defaultValue, values, placeholder) => {
+    if (_hasValue(defaultValue, values)) {
+        return defaultValue;
+    } else if (placeholder) {
+        return placeholder;
+    } else if (values.length) {
+        return values[0].value;
+    }
+};
+```
 **[⬆ back to top](#table-of-contents)**
