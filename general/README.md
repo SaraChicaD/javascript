@@ -82,11 +82,10 @@ if (this.something()) {
 
 For more details, check out [_Replacing the `switch` statement for object literals_](https://toddmotto.com/deprecating-the-switch-statement-for-object-literals/).
 
-### Single `return` statement
+#### Case study
 
-If possible, avoid using more than one return statement inside a given function. Instead, use a lookup map to handle the logic. It makes it easier for maintainability and avoids mixing decision with execution.
+**_First iteration_**: Multiple return statements and if-else statements that mix decision with execution.
 ```js
-// bad (multiple return statements)
 var getType = function(model) {
     if (model % 2 !== 0) {
         return 'odd';
@@ -97,7 +96,10 @@ var getType = function(model) {
     }
     return 'default';
 };
+```
 
+**_Second iteration_**: A lookup map helps avoid using more than one return statement inside a given function and abstracts away the conditional logic. This makes it easier for maintainability and readability, as well as helping with performance by using `.find`.
+```js
 // good (use a lookup map)
 var helpers = {
     isOdd: function(value) {
