@@ -82,6 +82,54 @@ if (this.something()) {
 
 For more details, check out [_Replacing the `switch` statement for object literals_](https://toddmotto.com/deprecating-the-switch-statement-for-object-literals/).
 
+#### Case study
+
+**_First iteration_**: Multiple return statements and if-else statements that mix decision with execution.
+```js
+var getType = function(model) {
+    if (model % 2 !== 0) {
+        return 'odd';
+    } else if (model % 2 !== 0) {
+        return 'even';
+    } else if (model === 'Eventbrite') {
+        return 'Eventbrite';
+    }
+    return 'default';
+};
+```
+
+**_Second iteration_**: A lookup map helps avoid using more than one return statement inside a given function and abstracts away the conditional logic. This makes it easier for maintainability and readability, as well as helping with performance by using `.find`.
+```js
+// good (use a lookup map)
+var helpers = {
+    isOdd: function(value) {
+        return value % 2 !== 0;
+    },
+    isEven: function(value) {
+        return value % 2 === 0;
+    },
+    isEventbrite: function(value) {
+    	return value === 'Eventbrite';
+    }
+}
+
+var types = {
+    isOdd: 'odd',
+    isEven: 'even',
+    isEventbrite: 'eventbrite'
+};
+
+_getType = function(types, model) {
+    var type = _.find(types, function(value, key) {
+        // will return the first value of the key that evaluates to true;
+        return helpers[key](model);
+    }
+    return type || 'default';
+}
+
+/* NOTE: We are using Underscore's .find method here, but with ES6, we can use find natively.
+For more info, visit https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find */
+```
 **[⬆ back to top](#table-of-contents)**
 
 ### Ternary statements
