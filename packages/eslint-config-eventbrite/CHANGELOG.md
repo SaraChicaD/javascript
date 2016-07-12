@@ -1,3 +1,6 @@
+## v2.1.1 (July 12, 2016)
+- (patch) bump `eslint-config-eventbrite-legacy` to 1.1.1
+
 ## v2.1.0 (June 29, 2016)
 - (minor) turn off `no-confusing-arrow`
 
