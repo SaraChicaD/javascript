@@ -31,7 +31,7 @@ module.exports = {
 
         // 4-space indentation
         // http://eslint.org/docs/rules/indent
-        'indent': ['error', 2, {
+        'indent': ['error', 4, {
             SwitchCase: 1
         }],
 
