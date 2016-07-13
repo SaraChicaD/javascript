@@ -6,6 +6,7 @@ Guidelines and best practices used by Eventbrite to provide consistency and prev
 
 0. [Conditionals](#conditionals)
 0. [Assignments](#assignments)
+0. [Naming Conventions](#naming-conventions)
 
 ## Conditionals
 
@@ -196,7 +197,7 @@ At this point, telling what is the base state for this method is quite hard, giv
 
 However, if this code would have followed the initial recommendation, the code wouldn't degrade as more functionality is added.
 
-**First iteration (revisited)_**:
+**_First iteration (revisited)_**:
 
 ```js
 var isAllowed = hasParent && isOwner,
@@ -256,15 +257,157 @@ Avoid variable indirection when possible. Reassigning variables when no transfor
 ```js
 // good
 _handleEvent = function(e) {
-    _doSomethingWithEvent(e.target.checked);   
+    _doSomethingWithEvent(e.target.checked);
 }
 
 // bad
 _handleEvent = function(e) {
     var checked = e.target.checked;
 
-    _doSomethingWithEvent(checked);   
+    _doSomethingWithEvent(checked);
 }
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+## Naming Conventions
+> There are only two hard things in Computer Science: cache invalidation and naming things. *Phil Karlton*
+
+### Variables: Classes or newable functions
+Classes or newable functions (meant to be factories) should be singular, camelCase, and begin with a capital letter:
+
+```js
+var groupTicket = new Ticket(id: 555);
+```
+### Variables: Helpers and common variables
+
+Any variable that's not a class or newable function, should be camelCase. This includes local variables, helper functions, modules, etc.
+
+```js
+//good
+var pagination = require('pagination'),
+    pages = pagination.getPages();
+
+//bad
+var Pagination = require('pagination'),
+    pages = Pagination.getPages();
+```
+
+### Varialbles: Boolean
+
+Variables that will contain a boolean value should start with either `is` or `has`:
+
+```js
+//good
+var isAvailable = true,
+    hasTickets = false;
+
+//bad
+var available = true,
+    IHaveTickets = false;
+```
+### Variables: jQuery elements
+
+Variables that contain jQuery elements should start with a dollar sign ($) so that we can quickly identify these types of variables by scanning the code (i.e. static analysis). This makes code review easier.
+
+```js
+var $elements = $('someSelector'), // in case a global search
+    $element = this.$('some selector'); // in case of backbone
+```
+### Variables: Deferred
+
+If a variable contains a jQuery.Deferred() or Promise, the variable should end in Dfd or Promise, respectively:
+
+```js
+//good
+var fetchPromise = fetch('http://some/url'),
+     requestDfd = new $.Deferred() // in case of jquery promises.
+
+//bad
+var request = fetch('http://some/url'),
+    onResolve = new $.Deferred();
+```
+
+### Constants
+
+Constats should be all written in capital letters and in snake_case. (except config object.)
+
+```js
+//good
+const DEFAULT_VALUE = 'none';
+
+var TIMEOUT = 3;
+
+var config = {};
+
+//bad
+const defaultValue = 'none';
+
+var timeout = 3;
+
+var someOtherStaticVariable = 'blah';
+
+### Variables: objects, strings, integers
+
+Avoid names that are generic and instead, try to make your best effort to find a proper name in order to explain the content of it. If data needs to be changed, as part of a process, try to create methods to produce this changes on demand.
+
+```js
+//good
+var attendeeNames = {},
+    translatedGreeting 'hola!',
+    getDefaultPrice = parseInt(5, 10);
+
+//bad
+var propsObject = {},
+    trimmedString = 'hello   '.trim(),
+    intPrice = parseInt(5, 10);
+```
+
+### Method: Private
+
+Prefix private method names with an underscore (_):
+
+```js
+// good
+var _getInternalValue = function() {
+    // code here.
+};
+
+// bad
+var getInternalValuePleaseDonot = function() {
+    // code here.
+};
+
+```
+
+Using the underscore prefix naming convention for private methods allows us to easily identify which methods are not part of the component's public API. As a result, future developers can easily know which methods can be refactored or even removed without affecting any users of the component. This makes upgrading to new technologies/tools/idioms simpler.
+
+The naming convention also helps code reviewers to quickly understand which methods have been added by us versus which are a part of the framework's lifecycle methods (see: [react](https://facebook.github.io/react/docs/component-specs.html#lifecycle-methods) or [Marionette](https://marionette.gitbooks.io/marionette-guides/content/en/views/triggers.html)).
+
+### Method: public
+
+should always begin with a [lowerCase](http://c2.com/cgi/wiki?LowerCamelCase)
+
+```js
+
+//good
+getNode: function() {
+        //code here.
+    },
+setAttr: function() {
+        // code here.
+    };
+
+//bad
+
+_superComplextName: function() {
+    // code here.
+}
+
+UpdateAll: function() {
+    / /code here
+}
+
 ```
 
 **[⬆ back to top](#table-of-contents)**
