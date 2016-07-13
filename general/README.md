@@ -346,12 +346,14 @@ const defaultValue = 'none';
 var timeout = 3;
 
 var someOtherStaticVariable = 'blah';
+```
 
 ### Variables: objects, strings, integers
 
 Avoid names that are generic and instead, try to make your best effort to find a proper name in order to explain the content of it. If data needs to be changed, as part of a process, try to create methods to produce this changes on demand.
 
 ```js
+
 //good
 var attendeeNames = {},
     translatedGreeting 'hola!',
@@ -361,6 +363,7 @@ var attendeeNames = {},
 var propsObject = {},
     trimmedString = 'hello   '.trim(),
     intPrice = parseInt(5, 10);
+    
 ```
 
 ### Method: Private
@@ -368,6 +371,7 @@ var propsObject = {},
 Prefix private method names with an underscore (_):
 
 ```js
+
 // good
 var _getInternalValue = function() {
     // code here.
@@ -377,7 +381,6 @@ var _getInternalValue = function() {
 var getInternalValuePleaseDonot = function() {
     // code here.
 };
-
 ```
 
 Using the underscore prefix naming convention for private methods allows us to easily identify which methods are not part of the component's public API. As a result, future developers can easily know which methods can be refactored or even removed without affecting any users of the component. This makes upgrading to new technologies/tools/idioms simpler.
