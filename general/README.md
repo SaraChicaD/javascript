@@ -127,10 +127,11 @@ _getType = function(types, model) {
     }
     return type || 'default';
 }
-
-/* NOTE: We are using Underscore's .find method here, but with ES6, we can use find natively.
-For more info, visit https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find */
 ```
+
+NOTE: We are using Underscore's .find method here, but with ES6, we can use find natively.
+For more info, visit https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find.
+
 **[⬆ back to top](#table-of-contents)**
 
 ### Ternary statements
