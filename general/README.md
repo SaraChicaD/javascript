@@ -6,6 +6,7 @@ Guidelines and best practices used by Eventbrite to provide consistency and prev
 
 0. [Conditionals](#conditionals)
 0. [Assignments](#assignments)
+0. [Functions](#functions)
 0. [Naming Conventions](#naming-conventions)
 
 ## Conditionals
@@ -249,6 +250,41 @@ if (isAllowed) {
 
 **[⬆ back to top](#table-of-contents)**
 
+## Functions
+
+### Immediately-invoked function expressions
+
+Avoid using IFFEs (immediately-invoked function expressions) if possible. The `bind` function is preferred when dealing with variable scope in closures (note that `bind` is only available in ES5+,
+though we use `es5-shim` so `bind` should always be in our codebase by default).
+
+```js
+var purchaseTicketButtonSelector = '.goog-te-combo';
+
+// good (using .bind)
+buyTicketFunction = function(options) {
+    buyTickets(_.pick(options, 'eventId', 'ticketId'));
+};
+
+$(purchaseTicketButtonSelector).click(buyTicketFunction.bind(null, options));
+
+// bad (using IFFEs)
+buyTicketFunction = (function(options) {
+    return function() {
+        buyTickets(_.pick(options, 'eventId', 'ticketId'));
+    };
+})(options);
+
+$(purchaseTicketButtonSelector).click(function() {
+    buyTicketFunction();
+});
+```
+
+IFFEs tend to add unnecessary complexity (note that the "bad" IFFE example
+has three nested functions, while the "good" example has one) and is harder to
+change or extend.
+
+**[⬆ back to top](#table-of-contents)**
+
 ## Assignments
 
 ### Variable indirection
@@ -294,7 +330,7 @@ var Pagination = require('pagination'),
     pages = Pagination.getPages();
 ```
 
-### Varialbles: Boolean
+### Variables: Boolean
 
 Variables that will contain a boolean value should start with either `is` or `has`:
 
@@ -364,7 +400,7 @@ var attendeeNames = {},
 var propsObject = {},
     trimmedString = 'hello   '.trim(),
     intPrice = parseInt(5, 10);
-    
+
 ```
 
 ### Method: Private
