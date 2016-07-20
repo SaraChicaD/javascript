@@ -1009,7 +1009,9 @@ export default class TextInput extends React.Component {
     }
 
     render() {
-        <input type="text" onChange={this._onChange.bind(this)} />
+        return (
+            <input type="text" onChange={this._onChange.bind(this)} />
+        );
     }
 }
 ```
@@ -1046,12 +1048,12 @@ export default class Pagination React.Component {
 
     render() {
         let buttons = [1, 2, 3, 4, 5].map((page) => (
-            <Button onClick={this._handlePageClick.bind(this, page)} />
+            <Button key={page} onClick={this._handlePageClick.bind(this, page)} />
         ));
 
         return (
             <div>{buttons}</div>
-        )
+        );
     }
 }
 
@@ -1076,12 +1078,12 @@ export default class Pagination React.Component {
 
     render() {
         let buttons = [1, 2, 3, 4, 5].map((page) => (
-            <Button onClick={this._handlePageClick.bind(this, page)} />
+            <Button key={page} onClick={this._handlePageClick.bind(this, page)} />
         ));
 
         return (
             <div>{buttons}</div>
-        )
+        );
     }
 }
 ```
@@ -1125,11 +1127,13 @@ export default class TextInput extends React.Component {
     }
 
     render() {
-        <input
-            type="text"
-            onChange={this._handleChange.bind(this)}
-            onBlur={this._handleBlur.bind(this)}
-        />
+        return (
+            <input
+                type="text"
+                onChange={this._handleChange.bind(this)}
+                onBlur={this._handleBlur.bind(this)}
+            />
+        );
     }
 }
 
@@ -1155,11 +1159,13 @@ export default class TextInput extends React.Component {
     }
 
     render() {
-        <input
-            type="text"
-            onChange={this._handleChange.bind(this)}
-            onBlur={this._handleBlur.bind(this)}
-        />
+        return (
+            <input
+                type="text"
+                onChange={this._handleChange.bind(this)}
+                onBlur={this._handleBlur.bind(this)}
+            />
+        );
     }
 }
 
@@ -1185,11 +1191,13 @@ export default class TextInput extends React.Component {
     }
 
     render() {
-        <input
-            type="text"
-            onChange={this._handleChange.bind(this)}
-            onBlur={this.props.onBlur}
-        />
+        return (
+            <input
+                type="text"
+                onChange={this._handleChange.bind(this)}
+                onBlur={this.props.onBlur}
+            />
+        );
     }
 }
 ```
@@ -1259,34 +1267,341 @@ For more info on `dangerouslySetInnerHTML`, see: [Dangerously Set innerHTML](htt
 
 ## `render()`
 
+In addition to `render()` being the _last_ method in a component (see [Method ordering](#method-ordering)), we have additional best practices...
+
 ### Logic and JSX
 
-Coming soon...
+React and JSX supporting logic and markup in the same file allows for substantial complexity in markup generation over other traditional templating languages (like [handlebars](http://handlebarsjs.com)). But with that increased complexity can come a decrease in readability.
+
+In order to maximize both complexity and readability, we suggest keeping all logic out of JSX, except variable references and method calls. Expressions, particularly ternary expressions, should be stored in variables outside of JSX.
+
+```js
+// good
+render() {
+    let {includeHeader} = this.props;
+    let buttons = [1, 2, 3, 4, 5].map((page) => (
+        <Button key={page} onClick={this._handlePageClick.bind(this, page)} />
+    ));
+    let header;
+
+    if (includeHeader) {
+        header = (<h2>Pagination</h2>);
+    }
+
+    return (
+        <div>
+            {header}
+            {buttons}
+        </div>
+    );
+}
+
+// bad (expressions in JSX)
+render() {
+    let {includeHeader} = this.props;
+
+    return (
+        <div>
+            {includeHeader ? (<h2>Pagination</h2>) : null}
+            {[1, 2, 3, 4, 5].map((page) => (
+                <Button key={page} onClick={this._handlePageClick.bind(this, page)} />
+            ))}
+        </div>
+    );
+}
+```
+
+The above "bad" example doesn't seem so bad right? But as we know, code tends to grow over time. If we add more expressions, add more markup to the header, or the map gets more more logic, the code will become unwieldy. Setting up this guideline, even in the most simple examples, helps set the code along the right path.
+
+See [Helper components](#helper-components) for another way to help keep `render()` lean.
+
+**[⬆ back to top](#table-of-contents)**
+
+### Hiding elements
+
+With React's optimized re-rendering via its Virtual DOM abstraction, you should never need to hide elements with CSS (except maybe with some sophisticated CSS animations). Instead, don't render the element when it shouldn't be visible, and render it when it should:
+
+```js
+// good
+export default class Togglr extends React.Component {
+    state = {visible: false}
+
+    _handleToggle() {
+        this.setState({
+            visible: !this.state.visible
+        })
+    }
+
+    render() {
+        let {visible} = this.state;
+        let message;
+
+        if (visible) {
+            message = (
+                <p>This message is toggled on/off with React not CSS!</p>
+            );
+        }
+
+        return (
+            <div>
+                <Button click={this._handleToggle.bind(this)}>Toggle!</Button>
+                {message}
+            </div>
+        );
+    }
+}
+
+// bad (uses CSS to hide element instead of not rendering)
+export default class Togglr extends React.Component {
+    state = {visible: false}
+
+    _handleToggle() {
+        this.setState({
+            visible: !this.state.visible
+        })
+    }
+
+    render() {
+        let {visible} = this.state;
+        let messageClassName;
+
+        if (!visible) {
+            messageClassName = 'hidden';
+        }
+
+        return (
+            <div>
+                <Button click={this._handleToggle.bind(this)}>Toggle!</Button>
+                <p className={messageClassName}>
+                    This message is toggled on/off with CSS 🙁!
+                </p>
+            </div>
+        );
+    }
+}
+```
+
+_Friendly reminder:_ If you want an **entire** component to be conditionally rendered, the component must return `null`. Returning `undefined` will be an error.
 
 **[⬆ back to top](#table-of-contents)**
 
 ## State
 
+There are two ways of maintaining data in a React component: props and state.
+
+**Props** are used by a component's parent to configure the component and are immutable within the component.
+
+**State** is internal to the component so that it can maintain data that will change over time. Whenever the state changes (via [`setState`](https://facebook.github.io/react/docs/component-api.html#setstate)), the component will re-render. A component's state should not be manipulated outside of it.
+
 ### Initializing
 
-Coming soon...
+We rely on the [Class fields proposal](https://github.com/jeffmo/es-class-fields-and-static-properties) for initialize state over assigning `this.state` in the constructor so that it's more declarative. We don't use `getInitialState` which was the only option in ES5.
 
-**[⬆ back to top](#table-of-contents)**
+```js
+// good
+export default class Togglr extends React.Component {
+    state = {visible: false}
 
-### Dynamic data
+    // rest of the component
+}
 
-Coming soon...
+// bad (assigns `this.state` unnecessarily in constructor)
+export default class Togglr extends React.Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {visible: false};
+    }
+
+    // rest of the component
+}
+
+// bad (uses ES5 `getInitialState`)
+export default class Togglr extends React.Component {
+    getInitialState() {
+        return {visible: false};
+    }
+
+    // rest of the component
+}
+```
 
 **[⬆ back to top](#table-of-contents)**
 
 ### Defaulting from props
 
-Coming soon...
+In general, using props to generate state is an anti-pattern because it results in duplicate "sources of truth" (see [Props in getInitialState as an anti-pattern](https://facebook.github.io/react/tips/props-in-getInitialState-as-anti-pattern.html)). But if your props is properly named to indicate that it's only used as seed data for the component's internally-controlled state, it's no longer an anti-pattern.
+
+We tend to prefix these types of props with `default*` to match the `defaultValue` prop React uses for input elements. `initial*` is also a good prefix.
+
+When defaulting from props, using the declarative class field no longer works as the props are not available in static scope. The only option is to initialize within the `constructor`:
+
+```js
+// good
+export default class Togglr extends React.Component {
+    constructor(props, context) {
+        super(prop, context);
+        this.state = {visible: props.defaultVisible};
+    }
+
+    // rest of the component
+}
+
+// bad (confusingly-named prop)
+export default class Togglr extends React.Component {
+    constructor(props, context) {
+        super(prop, context);
+        this.state = {visible: props.visible};
+    }
+
+    // rest of the component
+}
+```
+
+In the "bad" example, both `props` and `state` have a property called `visible`, which is very confusing. Should you use `this.props.visible` or `this.state.visible`. The one in `props` cannot change, while the one in `state` can. Naming the prop `defaultVisible` (as shown in the "good" example) makes things clearer.
+
+As a reminder, setting the state in the `constructor` should only be used when defaulting from props.
 
 **[⬆ back to top](#table-of-contents)**
 
 ### Resetting
 
-Coming soon...
+The most common use case for resetting state is a form that when submitted should return to its original default values. Resetting the state is as simple as setting it to the same object used to initialize it. To keep your code DRY, store the initial state in a constant so it can be used both for initialization and reset:
+
+```js
+// good
+const INITIAL_STATE = {
+    name: '',
+    message: ''
+}
+
+export default ContactForm extends React.Component {
+    state = {
+        name: '',
+        message: ''
+    }
+
+    _handleFormSubmit() {
+        // code for submitting form
+
+        // reset form (from const)
+        this.setState(INITIAL_STATE);
+    }
+
+    render() {
+        // render form w/ inputs
+    }
+}
+
+// bad (duplicate initial state)
+export default ContactForm extends React.Component {
+    state = {name: '', message: ''}
+
+    _handleFormSubmit() {
+        // code for submitting form
+
+        // reset form
+        this.setState({
+            name: '',
+            message: ''
+        });
+    }
+
+    render() {
+        // render form w/ inputs
+    }
+}
+```
+
+In ES5, we could've just called `getInitialState` to reset the form state, but since we're using the declarative approach, we need to store the initial state object in a const.
 
 **[⬆ back to top](#table-of-contents)**
+
+### DOM state
+
+Sometimes you will need to render different markup based on the presence of certain DOM APIs such as SVG support, touch support, CSS animation support, etc.
+
+You may be tempted to use `state` to maintain the presence of the combination of DOM APIs, but since the value will not be changing over time, `state` is not the appropriate place for this data. Further, each component instance has its own unique state, and the presence of the DOM APIs will not change between instances. Therefore storing this `data` in state would also be redundant.
+
+Instead use a private static variable to maintain this data:
+
+```js
+// good
+import React from 'react';
+
+// maintain a private that stores the combination of the
+// DOM APIs
+let SUPPORTS_FANCINESS;
+
+const SvgLoading = () => {
+    // code for an SVG loading display
+};
+
+const FallbackLoading = () => {
+    // code for a fallback/image loading display
+};
+
+export default class Loading extends React.Component {
+    _supportsFanciness() {
+        if (SUPPORTS_FANCINESS === undefined && /* determine presence of DOM APIs */) {
+            SUPPORTS_FANCINESS = true;
+        }
+
+        return SUPPORTS_FANCINESS;
+    }
+
+    render() {
+        let loadingComponent = this._supportsFanciness
+            ? (<SvgLoading />)
+            : (<FallbackLoading />);
+
+        return (
+            <div>
+                {loadingComponent}
+            </div>
+        );
+    }
+}
+
+
+// bad (stores API state in `state`)
+import React from 'react';
+
+const SvgLoading = () => {
+    // code for an SVG loading display
+};
+
+const FallbackLoading = () => {
+    // code for a fallback/image loading display
+};
+
+export default class Loading extends React.Component {
+    state = {
+        supportsFanciness: false
+    }
+
+    componentDidMount() {
+        if (/* determine presence of DOM APIs */) {
+            this.setState({
+                supportsFanciness: true
+            })
+        }
+    }
+
+    render() {
+        let {supportsFanciness} = this.state;
+        let loadingComponent = supportsFanciness
+            ? (<SvgLoading />)
+            : (<FallbackLoading />);
+
+        return (
+            <div>
+                {loadingComponent}
+            </div>
+        );
+    }
+}
+```
+
+Setting state in `componentDidMount` is a poor practice in general because it can result in unnecessary double calls to `render()`: the initial render and then the subsequent render as a result of `setState`. In fact we use the [`react/no-did-mount-set-state`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/no-did-mount-set-state.md) ESLint rule to prevent this.
+
+However, in the "good" example, by storing `SUPPORTS_FANCINESS` in a private static variable, once the first component tries to render, the value will be calculated and subsequently cached. And we still only have one render.
